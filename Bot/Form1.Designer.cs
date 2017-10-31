@@ -43,7 +43,6 @@
             this.cikti.Size = new System.Drawing.Size(315, 148);
             this.cikti.TabIndex = 0;
             this.cikti.Text = "";
-            this.cikti.TextChanged += new System.EventHandler(this.cikti_TextChanged);
             // 
             // button1
             // 

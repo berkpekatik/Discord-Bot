@@ -1,66 +1,54 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Discord;
-using Discord.WebSocket;
 
 
 namespace Bot
 {
     public partial class Form1 : Form
     {
-        DiscordSocketClient client;
-        CommandHandler handler;
+        private readonly Service _service = new Service();
+
         public Form1()
         {
-            
+
             InitializeComponent();
-            
-    }
-        
-        private async void button1_Click(object sender, EventArgs e)
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
         {
-            handler = new CommandHandler();
-            string Token = "MzcyODQzOTUxOTEwMTU4MzM3.DNY2Pg.uRV5jqZoZf8UhdbArhTyaaolm4w";
-            client = new DiscordSocketClient(new DiscordSocketConfig()
-            {
-                LogLevel = LogSeverity.Verbose
-            });
+            _service.Login();
+            _service.Client.Log += client_Log;
 
-            await handler.Install(client);
-
-            client.Log += client_Log;
-            try
+            while (_service.Client.ConnectionState != ConnectionState.Connected)
             {
-                await client.LoginAsync(TokenType.Bot, Token);
-                await client.StartAsync();
+                Print(_service.Client.ConnectionState.ToString());
+                Thread.Sleep(1000);
             }
-            catch 
-            {
 
-                MessageBox.Show("ERROR");
-                return;
-            }
-            await Task.Delay(3000);
-            foreach (var Guild in client.Guilds)
+            foreach (var guild in _service.Client.Guilds)
             {
-                guilds.Items.Add(Guild.Name);
+                guilds.Items.Add(guild.Name);
             }
             guilds.SelectedIndexChanged += guilds_SelectedIndexChanged;
         }
 
         private Task client_Log(LogMessage arg)
         {
-            Invoke((Action)delegate {
-                cikti.AppendText(arg + "\n");
-            }); 
+            Print(arg.Message);
             return null;
+        }
+
+        private void Print(string message)
+        {
+            Invoke((Action)delegate
+            {
+                cikti.AppendText(message + "\n");
+                cikti.ScrollToCaret();
+            });
         }
 
         private void guilds_SelectedIndexChanged(object sender, EventArgs e)
@@ -68,7 +56,7 @@ namespace Bot
             users.Items.Clear();
             voicec.Items.Clear();
             textc.Items.Clear();
-            foreach (var Guild in client.Guilds)
+            foreach (var Guild in _service.Client.Guilds)
             {
                 if (Guild.Name == guilds.Text)
                 {
@@ -88,9 +76,5 @@ namespace Bot
             }
         }
 
-        private void cikti_TextChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 }
