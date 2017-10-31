@@ -30,9 +30,10 @@ namespace Bot
             int argPos = 0;
             if (!(msg.HasStringPrefix(";;", ref argPos) || msg.HasMentionPrefix(Client.CurrentUser, ref argPos))) return;
 
-            var context = new CommandContext(Client, msg);
-            var result = await Commands.ExecuteAsync(context, argPos);
-            if (!result.IsSuccess) await context.Channel.SendMessageAsync(result.ErrorReason);
+            if (msg.Content == ";;ping")
+            {
+                await msg.Channel.SendMessageAsync("Pong!");
+            }
         }
     }
 }
