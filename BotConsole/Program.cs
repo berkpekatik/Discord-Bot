@@ -41,8 +41,39 @@ namespace BotConsole
         {
             // Hook the MessageReceived Event into our Command Handler
             _client.MessageReceived += HandleCommandAsync;
+
+            _client.Ready += Client_Ready;
+
             // Discover all of the commands in this assembly and load them.
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+        }
+
+        private Task Client_Ready()
+        {
+            foreach (var item in _client.Guilds)
+            {
+                Console.WriteLine(item.Name);
+
+                Console.WriteLine("Text Channels");
+                foreach (var text in item.TextChannels)
+                {
+                    Console.WriteLine("--" + text.Name);
+                }
+
+                Console.WriteLine("Voice Channels");
+                foreach (var text in item.VoiceChannels)
+                {
+                    Console.WriteLine("--" + text.Name);
+                }
+
+                Console.WriteLine("Users");
+                foreach (var text in item.Users)
+                {
+                    Console.WriteLine("--" + text.Username);
+                }
+            }
+
+            return null;
         }
 
         private async Task HandleCommandAsync(SocketMessage messageParam)
